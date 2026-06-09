@@ -1,0 +1,70 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isVerified() {
+      // In development environments with popup, sometimes email_verified might not be enforced easily,
+      // but according to the strict spec:
+      // return request.auth.token.email_verified == true;
+      // We will assume email verified is handled, but let's just make it secure as per prompt:
+      return request.auth != null && request.auth.token.email_verified == true;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidEntry(data) {
+      return data.keys().hasAll(['title', 'content', 'mood', 'isPublic', 'createdAt', 'ownerId'])
+        && data.title is string && data.title.size() > 0 && data.title.size() <= 200
+        && data.content is string && data.content.size() > 0 && data.content.size() <= 200000
+        && data.mood is string && data.mood.matches('^(Happy|Inspired|Cozy|Dreamy|Calm)$')
+        && data.isPublic is bool
+        && data.createdAt is number
+        && data.ownerId is string && data.ownerId == request.auth.uid;
+    }
+
+    match /entries/{entryId} {
+      // Read access: Public entries are readable by anyone. Private entries are readable only by the owner.
+      allow read: if isValidId(entryId) && (existing().isPublic == true || (isSignedIn() && existing().ownerId == request.auth.uid));
+
+      // Query list: The client must filter by isPublic == true if unauthenticated, or ownerId == uid.
+      allow list: if resource.data.isPublic == true || (isSignedIn() && resource.data.ownerId == request.auth.uid);
+
+      // Create: user must be verified, shape must be valid, no ghost fields allowed.
+      allow create: if isVerified() 
+        && isValidId(entryId)
+        && isValidEntry(incoming())
+        && incoming().keys().size() == 6;
+
+      // Update: user must be verified and owner, shape must be valid, ownerId must not change, createdAt must not change.
+      // We allow full update of the entry as long as immutable fields don't change and the shape stays valid.
+      allow update: if isVerified()
+        && isValidId(entryId)
+        && existing().ownerId == request.auth.uid // Must be the owner
+        && isValidEntry(incoming())
+        && incoming().diff(existing()).affectedKeys().hasOnly(['title', 'content', 'mood', 'isPublic']) // only allow updating these fields
+        && incoming().keys().size() == 6;
+
+      // Delete: Must be the owner
+      allow delete: if isVerified()
+        && isValidId(entryId)
+        && existing().ownerId == request.auth.uid;
+    }
+  }
+}
