@@ -9,6 +9,10 @@ service cloud.firestore {
       return request.auth != null;
     }
 
+    function isAuthorized() {
+      return isSignedIn() && (request.auth.token.email == 'alvitafabiola@gmail.com' || request.auth.token.email == 'shawtynewt@gmail.com');
+    }
+
     function isValidId(id) {
       return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
     }
@@ -40,14 +44,14 @@ service cloud.firestore {
       allow list: if resource.data.isPublic == true || (isSignedIn() && resource.data.ownerId == request.auth.uid);
 
       // Create: user must be verified, shape must be valid, no ghost fields allowed.
-      allow create: if isSignedIn() 
+      allow create: if isAuthorized() 
         && isValidId(entryId)
         && isValidEntry(incoming())
         && incoming().keys().size() == 6;
 
       // Update: user must be signed in and owner, shape must be valid, ownerId must not change, createdAt must not change.
       // We allow full update of the entry as long as immutable fields don't change and the shape stays valid.
-      allow update: if isSignedIn()
+      allow update: if isAuthorized()
         && isValidId(entryId)
         && existing().ownerId == request.auth.uid // Must be the owner
         && isValidEntry(incoming())
@@ -55,7 +59,7 @@ service cloud.firestore {
         && incoming().keys().size() == 6;
 
       // Delete: Must be the owner
-      allow delete: if isSignedIn()
+      allow delete: if isAuthorized()
         && isValidId(entryId)
         && existing().ownerId == request.auth.uid;
     }

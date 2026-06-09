@@ -27,6 +27,7 @@ export function EditorView({ onSave, onCancel }: EditorViewProps) {
   const [isPublic, setIsPublic] = useState(false);
   const [quote, setQuote] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [hasContent, setHasContent] = useState(false);
 
   useEffect(() => {
     setQuote(QUOTES[Math.floor(Math.random() * QUOTES.length)]);
@@ -40,6 +41,9 @@ export function EditorView({ onSave, onCancel }: EditorViewProps) {
       }),
     ],
     content: '',
+    onUpdate: ({ editor }) => {
+      setHasContent(!editor.isEmpty);
+    },
     editorProps: {
       attributes: {
         class: 'w-full min-h-[300px] text-xl bg-transparent border-none resize-none focus:outline-none focus:ring-0 text-brown-dark leading-relaxed font-sans markdown-body',
@@ -48,7 +52,7 @@ export function EditorView({ onSave, onCancel }: EditorViewProps) {
   });
 
   const handleSave = () => {
-    if (!title.trim() || !editor || editor.isEmpty) return;
+    if (!title.trim() || !editor || !hasContent) return;
     setIsSaving(true);
     // Fake slight delay for tactile feedback
     setTimeout(() => {
@@ -62,7 +66,7 @@ export function EditorView({ onSave, onCancel }: EditorViewProps) {
     }, 400);
   };
 
-  const isFormValid = title.trim().length > 0 && editor && !editor.isEmpty;
+  const isFormValid = title.trim().length > 0 && hasContent;
 
   return (
     <motion.div 
