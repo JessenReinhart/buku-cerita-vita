@@ -101,7 +101,7 @@ export function AdminSite({ entries, onSaveEntry, onDeleteEntry }: AdminSiteProp
       {/* App Header & Navigation */}
       <header className="pt-2 pb-8 px-6 max-w-5xl mx-auto flex flex-col items-center">
         <h1 className="text-5xl font-display font-medium text-brown-dark mb-10 tracking-tight flex items-center gap-3">
-          Ruang Cerita <span className="text-blush">✿</span>
+          Buku Cerita Vita <span className="text-blush">✿</span>
         </h1>
         
         {/* Organic Tab Navigation */}

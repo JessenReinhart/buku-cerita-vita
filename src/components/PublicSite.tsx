@@ -22,7 +22,7 @@ export function PublicSite({ entries }: PublicSiteProps) {
 
       <header className="pt-8 pb-12 px-6 max-w-5xl mx-auto flex flex-col items-center">
         <h1 className="text-5xl md:text-6xl font-display font-medium text-brown-dark mb-4 tracking-tight flex items-center gap-3">
-          Jurnal Cerita <span className="text-blush">✿</span>
+          Buku Cerita Vita <span className="text-blush">✿</span>
         </h1>
         <p className="text-xl text-brown-muted max-w-lg text-center leading-relaxed">
           Kumpulan potongan cerita manis, hari-hari yang tenang, dan segala memori yang ingin dikenang.

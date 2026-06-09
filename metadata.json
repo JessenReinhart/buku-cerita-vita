@@ -1,6 +1,6 @@
 {
-  "name": "Catatan Harian",
-  "description": "Buku jurnal dan blog pribadi yang hangat dan tenang.",
+  "name": "Buku Cerita Vita",
+  "description": "Buku cerita dan memori pribadi yang hangat dan tenang, khusus untuk Vita.",
   "requestFramePermissions": [],
   "majorCapabilities": [
     "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
