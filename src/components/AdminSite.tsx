@@ -26,7 +26,7 @@ export function AdminSite({ entries, onSaveEntry, onDeleteEntry }: AdminSiteProp
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (currentUser) => {
-      if (currentUser && currentUser.email && !ALLOWED_EMAILS.includes(currentUser.email) && currentUser.uid !== 'local') {
+      if (currentUser && currentUser.email && !ALLOWED_EMAILS.includes(currentUser.email)) {
         logOut();
         alert('Maaf, email ini tidak memiliki akses ke Area Pribadi.');
         setUser(null);
@@ -45,14 +45,10 @@ export function AdminSite({ entries, onSaveEntry, onDeleteEntry }: AdminSiteProp
 
   const handleLogin = async () => {
     try {
-      if (import.meta.env.VITE_FIREBASE_API_KEY || (typeof document !== 'undefined' && document.location.hostname !== 'localhost')) {
-        await signInWithGoogle();
-      } else {
-         setUser({ uid: 'local', email: 'test@local' } as User); 
-      }
-    } catch (error) {
-       console.error("Login failed, letting user test locally", error);
-       setUser({ uid: 'local', email: 'test@local' } as User); 
+      await signInWithGoogle();
+    } catch (error: any) {
+      console.error("Login failed:", error);
+      alert('Gagal masuk dengan Google. Pastikan domain aplikasi ini sudah ditambahkan di Firebase Authentication Authorized Domains. Error: ' + error.message);
     }
   };
 
