@@ -85,7 +85,15 @@ export default function App() {
     }
   };
 
-  if (!isLoaded) return null;
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen bg-cream flex flex-col items-center justify-center">
+        <div className="text-blush text-5xl animate-pulse flex items-center justify-center">
+          ✿
+        </div>
+      </div>
+    );
+  }
 
   return (
     <BrowserRouter>

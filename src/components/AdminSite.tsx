@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { JournalEntry } from '../types';
 import { FeedView } from './FeedView';
 import { EditorView } from './EditorView';
+import { VitaOnboarding } from './VitaOnboarding';
 import { PenLine, BookHeart, LogOut, Lock } from 'lucide-react';
 import { cn } from '../utils';
 import { Link } from 'react-router-dom';
@@ -21,6 +22,7 @@ export function AdminSite({ entries, onSaveEntry, onDeleteEntry }: AdminSiteProp
   const [activeTab, setActiveTab] = useState<Tab>('feed');
   const [user, setUser] = useState<User | null>(null);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   const ALLOWED_EMAILS = ['alvitafabiola@gmail.com', 'shawtynewt@gmail.com'];
 
@@ -32,6 +34,10 @@ export function AdminSite({ entries, onSaveEntry, onDeleteEntry }: AdminSiteProp
         setUser(null);
       } else {
         setUser(currentUser);
+        // Show onboarding if they are logged in and haven't seen it yet
+        if (currentUser && !localStorage.getItem('vita_onboarding_completed')) {
+          setShowOnboarding(true);
+        }
       }
       setIsAuthLoading(false);
     });
@@ -53,7 +59,13 @@ export function AdminSite({ entries, onSaveEntry, onDeleteEntry }: AdminSiteProp
   };
 
   if (isAuthLoading) {
-    return <div className="min-h-screen bg-cream flex items-center justify-center">Loading...</div>;
+    return (
+      <div className="min-h-screen bg-cream flex flex-col items-center justify-center">
+        <div className="text-blush text-5xl animate-pulse flex items-center justify-center">
+          ✿
+        </div>
+      </div>
+    );
   }
 
   if (!user) {
@@ -87,6 +99,10 @@ export function AdminSite({ entries, onSaveEntry, onDeleteEntry }: AdminSiteProp
 
   return (
     <div className="min-h-screen bg-cream font-sans text-brown-dark selection:bg-blush">
+      <AnimatePresence>
+        {showOnboarding && <VitaOnboarding onComplete={() => setShowOnboarding(false)} />}
+      </AnimatePresence>
+
       {/* Top bar */}
       <div className="flex justify-between items-center p-6 max-w-5xl mx-auto">
         <Link to="/" className="text-brown-muted hover:text-brown-dark flex items-center gap-2 text-sm font-bold transition-colors">

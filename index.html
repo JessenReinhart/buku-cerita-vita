@@ -6,8 +6,30 @@
     <title>Buku Cerita Vita</title>
   </head>
   <body>
+    <div id="loader" style="position: fixed; inset: 0; background: #FFFBF7; display: flex; align-items: center; justify-content: center; z-index: 9999; flex-direction: column; gap: 20px;">
+      <div style="font-size: 3rem; animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;">✿</div>
+      <style>
+        @keyframes pulse {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: .5; transform: scale(0.9); }
+        }
+      </style>
+    </div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <script>
+      // The React app will remove the loader once mounted
+      window.addEventListener('load', () => {
+        setTimeout(() => {
+          const loader = document.getElementById('loader');
+          if (loader) {
+            loader.style.opacity = '0';
+            loader.style.transition = 'opacity 0.5s ease';
+            setTimeout(() => loader.remove(), 500);
+          }
+        }, 500); // Give react 500ms head start
+      });
+    </script>
   </body>
 </html>
 
