@@ -9,12 +9,8 @@ service cloud.firestore {
       return request.auth != null;
     }
     
-    function isVerified() {
-      // In development environments with popup, sometimes email_verified might not be enforced easily,
-      // but according to the strict spec:
-      // return request.auth.token.email_verified == true;
-      // We will assume email verified is handled, but let's just make it secure as per prompt:
-      return request.auth != null && request.auth.token.email_verified == true;
+    function isAuthorized() {
+      return request.auth != null && (request.auth.token.email == 'alvitafabiola@gmail.com' || request.auth.token.email == 'shawtynewt@gmail.com' || request.auth.token.email == 'jessenreinharts@gmail.com');
     }
 
     function isValidId(id) {
@@ -47,14 +43,14 @@ service cloud.firestore {
       allow list: if resource.data.isPublic == true || (isSignedIn() && resource.data.ownerId == request.auth.uid);
 
       // Create: user must be verified, shape must be valid, no ghost fields allowed.
-      allow create: if isVerified() 
+      allow create: if isAuthorized() 
         && isValidId(entryId)
         && isValidEntry(incoming())
         && incoming().keys().size() == 6;
 
       // Update: user must be verified and owner, shape must be valid, ownerId must not change, createdAt must not change.
       // We allow full update of the entry as long as immutable fields don't change and the shape stays valid.
-      allow update: if isVerified()
+      allow update: if isAuthorized()
         && isValidId(entryId)
         && existing().ownerId == request.auth.uid // Must be the owner
         && isValidEntry(incoming())
@@ -62,7 +58,7 @@ service cloud.firestore {
         && incoming().keys().size() == 6;
 
       // Delete: Must be the owner
-      allow delete: if isVerified()
+      allow delete: if isAuthorized()
         && isValidId(entryId)
         && existing().ownerId == request.auth.uid;
     }

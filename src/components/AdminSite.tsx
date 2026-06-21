@@ -24,7 +24,7 @@ export function AdminSite({ entries, onSaveEntry, onDeleteEntry }: AdminSiteProp
   const [isAuthLoading, setIsAuthLoading] = useState(true);
   const [showOnboarding, setShowOnboarding] = useState(false);
 
-  const ALLOWED_EMAILS = ['alvitafabiola@gmail.com', 'shawtynewt@gmail.com'];
+  const ALLOWED_EMAILS = ['alvitafabiola@gmail.com', 'shawtynewt@gmail.com', 'jessenreinharts@gmail.com'];
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (currentUser) => {

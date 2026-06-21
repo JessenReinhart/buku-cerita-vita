@@ -10,7 +10,7 @@ service cloud.firestore {
     }
 
     function isAuthorized() {
-      return isSignedIn() && (request.auth.token.email == 'alvitafabiola@gmail.com' || request.auth.token.email == 'shawtynewt@gmail.com');
+      return isSignedIn() && (request.auth.token.email == 'alvitafabiola@gmail.com' || request.auth.token.email == 'shawtynewt@gmail.com' || request.auth.token.email == 'jessenreinharts@gmail.com');
     }
 
     function isValidId(id) {

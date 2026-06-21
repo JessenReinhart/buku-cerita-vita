@@ -58,30 +58,31 @@ export default function App() {
     };
     
     try {
-      if (document.location.hostname !== 'localhost' && !import.meta.env.VITE_FIREBASE_API_KEY) {
-        throw new Error('No Firebase Config');
-      }
       await addDoc(collection(db, 'entries'), newEntry);
-    } catch (error) {
-      console.warn("Using local state because Firebase failed", error);
-      const localEntry = { ...newEntry, id: Math.random().toString(36).substr(2, 9) };
-      setEntries(prev => [localEntry, ...prev]);
+    } catch (error: any) {
+      const isPermissionError = error?.code === 'permission-denied' || (error?.message && error.message.toLowerCase().includes('permission'));
+      if (isPermissionError) {
+        handleFirestoreError(error, OperationType.CREATE, 'entries');
+      } else {
+        console.warn("Using local state because Firebase failed", error);
+        const localEntry = { ...newEntry, id: Math.random().toString(36).substr(2, 9) };
+        setEntries(prev => [localEntry, ...prev]);
+      }
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleDeleteEntry = async (id: string) => {
-    // Determine if it's a local fallback entry
-    const isLocal = !id.includes('-'); // Firebase IDs typically are alphanumeric of length 20, Math.random is length 9, let's just try deleteDoc directly
-
     try {
-      if (document.location.hostname !== 'localhost' && !import.meta.env.VITE_FIREBASE_API_KEY) {
-        throw new Error('Local item');
-      }
       await deleteDoc(doc(db, 'entries', id));
-    } catch (error) {
-      console.warn('Fallback local delete', error);
-      setEntries(prev => prev.filter(e => e.id !== id));
+    } catch (error: any) {
+      const isPermissionError = error?.code === 'permission-denied' || (error?.message && error.message.toLowerCase().includes('permission'));
+      if (isPermissionError) {
+        handleFirestoreError(error, OperationType.DELETE, `entries/${id}`);
+      } else {
+        console.warn('Fallback local delete', error);
+        setEntries(prev => prev.filter(e => e.id !== id));
+      }
     }
   };
 
