@@ -73,7 +73,7 @@ export function VitaOnboarding({ onComplete }: { onComplete: () => void }) {
           </div>
           <button
             onClick={handleNext}
-            className="px-8 py-3 bg-blush text-white shadow-sm font-bold rounded-full hover:bg-blush/90 transition-transform hover:scale-105 active:scale-95"
+            className="px-8 py-3 bg-blush text-brown-dark shadow-sm font-bold rounded-full hover:bg-blush/80 transition-transform hover:scale-105 active:scale-95"
           >
             {step === steps.length - 1 ? "Mulai" : "Lanjut"}
           </button>

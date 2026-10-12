@@ -1,6 +1,6 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
-import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, where, onSnapshot } from 'firebase/firestore';
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore';
 
 // If firebase-applet-config.json exists, we fall back to it, otherwise we use env vars.
 let firebaseConfig: any = {
@@ -13,11 +13,22 @@ let firebaseConfig: any = {
 };
 
 try {
-  // We use this weird require to optionally load the config if it exists
+  // Optionally load the config if firebase-applet-config.json exists
   const config = import.meta.glob('../firebase-applet-config.json', { eager: true });
   const configModule = Object.values(config)[0] as any;
-  if (configModule && configModule.default) {
-    firebaseConfig = configModule.default;
+  if (configModule) {
+    const loaded = configModule.default || configModule;
+    if (loaded && loaded.apiKey) {
+      firebaseConfig = {
+        apiKey: import.meta.env.VITE_FIREBASE_API_KEY || loaded.apiKey,
+        authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || loaded.authDomain,
+        projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || loaded.projectId,
+        storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || loaded.storageBucket,
+        messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || loaded.messagingSenderId,
+        appId: import.meta.env.VITE_FIREBASE_APP_ID || loaded.appId,
+        firestoreDatabaseId: loaded.firestoreDatabaseId
+      };
+    }
   }
 } catch (e) {
   // Use env variables

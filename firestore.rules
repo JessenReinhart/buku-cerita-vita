@@ -36,29 +36,27 @@ service cloud.firestore {
     }
 
     match /entries/{entryId} {
-      // Read access: Public entries are readable by anyone. Private entries are readable only by the owner.
-      // Removed email_verified requirement to allow standard popup sign in development
-      allow read: if isValidId(entryId) && (existing().isPublic == true || (isSignedIn() && existing().ownerId == request.auth.uid));
+      // Read access: Public entries are readable by anyone. Private entries are readable only by the owner or authorized users.
+      allow read: if isValidId(entryId) && (existing().isPublic == true || (isSignedIn() && (existing().ownerId == request.auth.uid || isAuthorized())));
 
-      // Query list: The client must filter by isPublic == true if unauthenticated, or ownerId == uid.
-      allow list: if resource.data.isPublic == true || (isSignedIn() && resource.data.ownerId == request.auth.uid);
+      // Query list: The client must filter by isPublic == true if unauthenticated, or ownerId == uid, or if authorized.
+      allow list: if resource.data.isPublic == true || (isSignedIn() && (resource.data.ownerId == request.auth.uid || isAuthorized()));
 
-      // Create: user must be verified, shape must be valid, no ghost fields allowed.
+      // Create: user must be signed in & authorized, shape must be valid, no ghost fields allowed.
       allow create: if isAuthorized() 
         && isValidId(entryId)
         && isValidEntry(incoming())
         && incoming().keys().size() == 6;
 
-      // Update: user must be signed in and owner, shape must be valid, ownerId must not change, createdAt must not change.
-      // We allow full update of the entry as long as immutable fields don't change and the shape stays valid.
+      // Update: user must be signed in & authorized and owner, shape must be valid, ownerId must not change, createdAt must not change.
       allow update: if isAuthorized()
         && isValidId(entryId)
-        && existing().ownerId == request.auth.uid // Must be the owner
+        && existing().ownerId == request.auth.uid
         && isValidEntry(incoming())
-        && incoming().diff(existing()).affectedKeys().hasOnly(['title', 'content', 'mood', 'isPublic']) // only allow updating these fields
+        && incoming().diff(existing()).affectedKeys().hasOnly(['title', 'content', 'mood', 'isPublic'])
         && incoming().keys().size() == 6;
 
-      // Delete: Must be the owner
+      // Delete: Must be the owner or authorized
       allow delete: if isAuthorized()
         && isValidId(entryId)
         && existing().ownerId == request.auth.uid;
