@@ -22,7 +22,6 @@ export function AdminSite({ entries, onSaveEntry, onDeleteEntry }: AdminSiteProp
   const [activeTab, setActiveTab] = useState<Tab>('feed');
   const [user, setUser] = useState<User | null>(null);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
-  const [pin, setPin] = useState('');
   const [showOnboarding, setShowOnboarding] = useState(false);
 
   const ALLOWED_EMAILS = ['alvitafabiola@gmail.com', 'shawtynewt@gmail.com', 'jessenreinharts@gmail.com'];
@@ -51,10 +50,6 @@ export function AdminSite({ entries, onSaveEntry, onDeleteEntry }: AdminSiteProp
   };
 
   const handleLogin = async () => {
-    if (pin !== '1432') {
-      alert('PIN salah!');
-      return;
-    }
     try {
       await signInWithGoogle();
     } catch (error: any) {
@@ -85,22 +80,13 @@ export function AdminSite({ entries, onSaveEntry, onDeleteEntry }: AdminSiteProp
             <Lock size={32} />
           </div>
           <h2 className="text-3xl font-display font-medium text-brown-dark mb-2">Area Pribadi</h2>
-          <p className="text-brown-muted mb-8 text-sm">Silakan masukkan PIN dan masuk untuk menulis cerita.</p>
-          
-          <input 
-            type="password" 
-            placeholder="PIN (hint: 1432)"
-            className="w-full text-center text-3xl tracking-widest p-4 rounded-2xl bg-sand/20 border-2 border-transparent focus:border-blush/50 outline-none mb-6 font-mono text-brown-dark"
-            value={pin}
-            onChange={(e) => setPin(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
-          />
+          <p className="text-brown-muted mb-8 text-sm">Masuk dengan akun Google yang terdaftar untuk menulis dan mengelola cerita.</p>
 
           <button 
             onClick={handleLogin}
-            className="w-full py-4 rounded-full bg-blush text-brown-dark font-bold text-lg hover:bg-blush/90 transition-colors shadow-sm"
+            className="w-full py-4 rounded-full bg-blush text-brown-dark font-bold text-lg hover:bg-blush/80 active:scale-95 transition-all shadow-sm flex items-center justify-center gap-2"
           >
-            Masuk
+            Masuk dengan Google
           </button>
           
           <Link to="/" className="inline-block mt-6 text-sm text-brown-muted hover:text-brown-dark font-medium transition-colors">
